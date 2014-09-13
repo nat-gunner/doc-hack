@@ -21,6 +21,7 @@ print "Login accepted!"
 # User input
 
 repo_name = raw_input("Which repo do you need?: ")
+repo_name = repo_name.replace(' ', '-')
 filename = raw_input("Which file are you commiting?: ")
 path = raw_input("What's the new file's path on your computer?: ")
 msg = raw_input("What's the commit message?: ")

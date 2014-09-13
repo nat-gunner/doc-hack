@@ -27,6 +27,7 @@ cmt_msg = raw_input("What's the commit message?: ")
 # xml_msg = raw_input("What's the commit message for the xml?: ")
 filename = ntpath.basename(path)
 repo_name = filename[:-5]
+repo_name = repo_name.replace(' ', '-')
 
 # Create a new repository
 
