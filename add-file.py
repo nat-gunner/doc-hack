@@ -1,5 +1,5 @@
 # Copyright 2014 Kevin Fayle
-# See README for more details
+# See README for details
 
 #! /usr/bin/python
 
@@ -62,7 +62,6 @@ assert rm_add.status_code == 201
 
 head_api = api_root +  "/repos/%s/%s/git/refs/heads/master" % (user_name, repo_name)
 head_get = requests.get(head_api)
-print head_get.text
 head_json = json.loads(head_get.text)
 head_sha = head_json['object']['sha']
 head_url = head_json['object']['url']
@@ -72,12 +71,9 @@ head_url = head_json['object']['url']
 lastcmt_api = api_root + "/repos/%s/%s/commits" % (user_name, repo_name)
 lastcmt_get = requests.get(lastcmt_api)
 lastcmt_json = json.loads(lastcmt_get.text)
-print lastcmt_get.text
 lastcmt_sha = lastcmt_json[0]['sha']
-print lastcmt_sha
 lastcmt_tree_sha = lastcmt_json[0]['commit']['tree']['sha']
 lastcmt_tree_url = lastcmt_json[0]['commit']['tree']['url']
-print lastcmt_tree_sha
 
 # Read the docx file and convert it to base 64, Github's required encoding
 
@@ -105,7 +101,6 @@ docxblob_attr = json.dumps({'content':b64doc, 'encoding':'base64'})
 docxblob_post = requests.post(blob_api, docxblob_attr, auth=(user_name, password))
 docxblob_json = json.loads(docxblob_post.text)
 docxblob_sha = docxblob_json['sha']
-# print blob_sha
 
 # Create a new xml blob
 
@@ -113,7 +108,6 @@ xmlblob_attr = json.dumps({'content':b64xml, 'encoding':'base64'})
 xmlblob_post = requests.post(blob_api, xmlblob_attr, auth=(user_name, password))
 xmlblob_json = json.loads(xmlblob_post.text)
 xmlblob_sha = xmlblob_json['sha']
-# print blob_sha
 
 # Create new tree with the commit contents
 
@@ -126,15 +120,12 @@ assert new_tree_post.status_code == 201
 
 new_tree_json = json.loads(new_tree_post.text)
 new_tree_sha = new_tree_json['sha']
-print new_tree_post.text
-print new_tree_sha
 
 # Commit the new file
 
 newcmt_api = api_root + "/repos/%s/%s/git/commits" % (user_name, repo_name)
 newcmt_attr = json.dumps({'parents':[lastcmt_sha], 'tree':new_tree_sha, 'message': cmt_msg})
 newcmt_post = requests.post(newcmt_api, newcmt_attr, auth=(user_name, password))
-print newcmt_post.text
 assert newcmt_post.status_code == 201
 
 # Retrieve the new commit information
@@ -147,35 +138,7 @@ newcmt_sha = newcmt_json['sha']
 master_api = api_root + "/repos/%s/%s/git/refs/heads/master" % (user_name, repo_name)
 master_attr = json.dumps({'sha':newcmt_sha})
 master_patch = requests.patch(master_api, master_attr, auth=(user_name, password))
-print master_patch.status_code
-print master_patch.text
 assert master_patch.status_code == 200
 
-"""
-
-# Send content to Github
-
-docx_attr = json.dumps({'message':docx_msg, 'content':b64doc})
-docx_api = api_root + "/repos/%s/%s/contents/docx/%s" % (user_name, repo_name, filename)
-docx_add = requests.put(docx_api, docx_attr, auth=(user_name, password))
-
-xml_attr = json.dumps({'message':xml_msg, 'content':b64xml})
-xml_api = api_root + "/repos/%s/%s/contents/xml/document.xml" % (user_name, repo_name)
-xml_add = requests.put(xml_api, xml_attr, auth=(user_name, password))
-
-# Check results
-
-if docx_add.status_code == 201 and xml_add.status_code == 201:
-	print "File added!"
-
-else:
-	print docx_add.status_code
-	print xml_add.status_code
-
-assert docx_add.status_code == 201
-assert xml_add.status_code == 201	
-
-"""
-
-
+print "File added to repository!"
 

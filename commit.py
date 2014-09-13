@@ -25,27 +25,6 @@ filename = raw_input("Which file are you commiting?: ")
 path = raw_input("What's the new file's path on your computer?: ")
 msg = raw_input("What's the commit message?: ")
 
-# Get docx info
-"""
-docxP_api = api_root + "/repos/%s/%s/contents/docx/%s" % (user_name, repo_name, filename)
-docxP_info = requests.get(docxP_api)
-docxP_json = docxP_info.json()
-docxP_sha = docxP_json['sha']
-docxP_url = docxP_json['url']
-# print docxP_sha
-"""
-
-#Get xml info
-"""
-xmlP_api = "https://api.github.com/repos/%s/%s/contents/xml/document.xml" % (user_name, repo_name)
-xmlP_info = requests.get(xmlP_api)
-xmlP_json = xmlP_info.json()
-xmlP_sha = xmlP_json['sha']
-xmlP_url = xmlP_json['url']
-print xmlP_sha
-print xmlP_url
-"""
-
 # Get the HEAD info
 
 head_api = api_root +  "/repos/%s/%s/git/refs/heads/master" % (user_name, repo_name)
@@ -53,8 +32,6 @@ head_get = requests.get(head_api)
 head_json = json.loads(head_get.text)
 head_sha = head_json['object']['sha']
 head_url = head_json['object']['url']
-# print "Head sha: " + head_sha
-# print "Head url: " + head_url
 
 # Get the sha and tree info for the latest commit
 
@@ -64,18 +41,6 @@ lastcmt_json = json.loads(lastcmt_get.text)
 lastcmt_sha = lastcmt_json[0]['sha']
 lastcmt_tree_sha = lastcmt_json[0]['commit']['tree']['sha']
 lastcmt_tree_url = lastcmt_json[0]['commit']['tree']['url']
-# print "Last commit sha: " + lastcmt_sha
-# print "Last commit tree sha: " + lastcmt_tree_sha
-# print "Last commit tree url: " + lastcmt_tree_url
-
-# Get the sha for the base tree
-"""
-tree_api = api_root + "/repos/%s/%s/git/commits/" % (user_name, repo_name) + lastcmt_sha
-tree_get = requests.get(tree_api)
-tree_json = json.loads(tree_get.text)
-tree_sha = tree_json['tree']['sha']
-print "Tree sha:" + tree_sha
-"""
 
 # Read the new docx file on the client computer and convert it to base 64, Github's required encoding
 
@@ -95,12 +60,6 @@ unzipped.close()
 
 b64xml = base64.b64encode(clean_xml)
 
-"""
-# Path to existing file on GH
-
-docx_path = "docx/%s" % filename
-"""
-
 # Create new blobs
 
 blob_api = api_root + "/repos/%s/%s/git/blobs" % (user_name, repo_name)
@@ -109,13 +68,11 @@ docxblob_attr = json.dumps({'content':b64doc, 'encoding':'base64'})
 docxblob_post = requests.post(blob_api, docxblob_attr, auth=(user_name, password))
 docxblob_json = json.loads(docxblob_post.text)
 docxblob_sha = docxblob_json['sha']
-# print blob_sha
 
 xmlblob_attr = json.dumps({'content':b64xml, 'encoding':'base64'})
 xmlblob_post = requests.post(blob_api, xmlblob_attr, auth=(user_name, password))
 xmlblob_json = json.loads(xmlblob_post.text)
 xmlblob_sha = xmlblob_json['sha']
-# print blob_sha
 
 # Create new tree with the contents of the new file
 
@@ -128,7 +85,6 @@ assert new_tree_post.status_code == 201
 
 new_tree_json = json.loads(new_tree_post.text)
 new_tree_sha = new_tree_json['sha']
-# print new_tree_sha
 
 # Commit the new file
 
@@ -147,8 +103,8 @@ newcmt_sha = newcmt_json['sha']
 master_api = api_root + "/repos/%s/%s/git/refs/heads/master" % (user_name, repo_name)
 master_attr = json.dumps({'sha':newcmt_sha})
 master_patch = requests.patch(master_api, master_attr, auth=(user_name, password))
-print master_patch.status_code
-print master_patch.text
 assert master_patch.status_code == 200
+
+print "Commit accepted!"
 
 
