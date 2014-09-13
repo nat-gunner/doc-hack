@@ -49,5 +49,7 @@ The results can be seen at [this repository](https://github.com/nat-gunner/Test)
 - Combine scripts
 - Create GUI
 - Write a README file for the repository
+- Store all xml files
+- Create a method to merge the different commits in Word
 
 NOTE: This code is for demonstration and testing purposes only.  The author makes no claims about its functionality or security, and offers no warranty covering its use.
