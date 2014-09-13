@@ -1,3 +1,6 @@
+# Copyright 2014 Kevin Fayle
+# See README for more details
+
 #! /usr/bin/python
 
 # Import modules   
